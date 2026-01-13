@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Instagram Scraper with AI Analysis</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-gray-100 min-h-screen py-8">
+    <div class="container mx-auto px-4 max-w-4xl">
+        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
+            <h1 class="text-3xl font-bold text-gray-800 mb-2">Instagram Scraper</h1>
+            <p class="text-gray-600 mb-6">Get profile info, location data, and AI-powered analysis</p>
+
+            <div class="flex gap-4 mb-4">
+                <input
+                    type="text"
+                    id="username"
+                    placeholder="Enter Instagram username"
+                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                />
+                <button
+                    onclick="scrapeInstagram()"
+                    id="scrapeBtn"
+                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition duration-200"
+                >
+                    Scrape
+                </button>
+            </div>
+        </div>
+
+        <div id="loading" class="hidden bg-white rounded-lg shadow-lg p-8 text-center">
+            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+            <p class="text-gray-600">Analyzing account...</p>
+        </div>
+
+        <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
+            <p class="text-red-800" id="errorMessage"></p>
+        </div>
+
+        <div id="results" class="hidden bg-white rounded-lg shadow-lg p-8">
+            <h2 class="text-2xl font-bold text-gray-800 mb-6">Results</h2>
+
+            <div class="grid grid-cols-2 gap-4 mb-6">
+                <div>
+                    <p class="text-sm text-gray-600">Username</p>
+                    <p class="font-semibold" id="result-username"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Full Name</p>
+                    <p class="font-semibold" id="result-fullname"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Country</p>
+                    <p class="font-semibold" id="result-country"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Date Joined</p>
+                    <p class="font-semibold" id="result-joined"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Followers</p>
+                    <p class="font-semibold" id="result-followers"></p>
+                </div>
+                <div>
+                    <p class="text-sm text-gray-600">Following</p>
+                    <p class="font-semibold" id="result-following"></p>
+                </div>
+            </div>
+
+            <div class="mb-6">
+                <p class="text-sm text-gray-600 mb-2">Biography</p>
+                <p class="text-gray-800" id="result-bio"></p>
+            </div>
+
+            <div class="bg-blue-50 rounded-lg p-6 mb-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">🤖 AI Analysis</h3>
+                <pre class="whitespace-pre-wrap text-gray-700" id="result-ai"></pre>
+            </div>
+
+            <div>
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Recent Posts</h3>
+                <div id="result-posts" class="space-y-4"></div>
+            </div>
+
+            <button
+                onclick="downloadTxt()"
+                class="mt-6 bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold transition duration-200 w-full"
+            >
+                Download as TXT
+            </button>
+        </div>
+    </div>
+
+    <script>
+        let currentData = null;
+
+        async function scrapeInstagram() {
+            const username = document.getElementById('username').value.trim();
+            if (!username) {
+                alert('Please enter a username');
+                return;
+            }
+
+            document.getElementById('loading').classList.remove('hidden');
+            document.getElementById('results').classList.add('hidden');
+            document.getElementById('error').classList.add('hidden');
+            document.getElementById('scrapeBtn').disabled = true;
+
+            try {
+                const response = await fetch('/api/scrape', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({ username })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.error || 'Failed to scrape');
+                }
+
+                currentData = data;
+                displayResults(data);
+
+            } catch (error) {
+                document.getElementById('error').classList.remove('hidden');
+                document.getElementById('errorMessage').textContent = error.message;
+            } finally {
+                document.getElementById('loading').classList.add('hidden');
+                document.getElementById('scrapeBtn').disabled = false;
+            }
+        }
+
+        function displayResults(data) {
+            document.getElementById('result-username').textContent = data.username;
+            document.getElementById('result-fullname').textContent = data.fullName;
+            document.getElementById('result-country').textContent = data.country;
+            document.getElementById('result-joined').textContent = data.dateJoined;
+            document.getElementById('result-followers').textContent = data.followers.toLocaleString();
+            document.getElementById('result-following').textContent = data.following.toLocaleString();
+            document.getElementById('result-bio').textContent = data.biography;
+            document.getElementById('result-ai').textContent = data.aiAnalysis || 'AI analysis not available';
+
+            const postsDiv = document.getElementById('result-posts');
+            postsDiv.innerHTML = data.posts.map(post => `
+                <div class="border-l-4 border-blue-500 pl-4 py-2">
+                    <p class="text-sm text-gray-600 mb-1">Date: ${post.date}</p>
+                    <p class="text-gray-800">${post.caption}</p>
+                </div>
+            `).join('');
+
+            document.getElementById('results').classList.remove('hidden');
+        }
+
+        function downloadTxt() {
+            if (!currentData) return;
+
+            const content = `
+==========================================
+INSTAGRAM DATA FOR @${currentData.username}
+==========================================
+
+Username: ${currentData.username}
+Full Name: ${currentData.fullName}
+User ID: ${currentData.userId}
+Country: ${currentData.country}
+Date Joined: ${currentData.dateJoined}
+Verified On: ${currentData.verifiedOn}
+Followers: ${currentData.followers}
+Following: ${currentData.following}
+Total Posts: ${currentData.totalPosts}
+
+Biography:
+${currentData.biography}
+
+==========================================
+AI ANALYSIS
+==========================================
+
+${currentData.aiAnalysis || 'Not available'}
+
+==========================================
+POST CAPTIONS
+==========================================
+
+${currentData.posts.map(post => `Date: ${post.date}\n${post.caption}\n\n---\n`).join('\n')}
+`;
+
+            const blob = new Blob([content], { type: 'text/plain' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${currentData.username}_instagram_data.txt`;
+            a.click();
+            URL.revokeObjectURL(url);
+        }
+
+        document.getElementById('username').addEventListener('keypress', (e) => {
+            if (e.key === 'Enter') scrapeInstagram();
+        });
+    </script>
+</body>
+</html>

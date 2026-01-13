@@ -1,0 +1,23 @@
+# Environment variables
+.env
+.env.local
+.env.*.local
+
+# Dependencies
+node_modules/
+vercel-app/node_modules/
+
+# Vercel
+.vercel
+
+# Data files (may contain scraped data)
+*.json
+instagram_data*.txt
+*instagram_data.txt
+
+# OS files
+.DS_Store
+
+# IDE
+.vscode/
+.idea/
