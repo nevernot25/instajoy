@@ -11,7 +11,7 @@ vercel-app/node_modules/
 .vercel
 
 # Data files (may contain scraped data)
-*.json
+instagram_data*.json
 instagram_data*.txt
 *instagram_data.txt
 

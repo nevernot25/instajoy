@@ -1,0 +1,17 @@
+{
+  "name": "instagram-scraper-api",
+  "version": "1.0.0",
+  "description": "Instagram scraper with AI analysis",
+  "main": "index.js",
+  "scripts": {
+    "dev": "vercel dev",
+    "deploy": "vercel"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.32.1",
+    "axios": "^1.7.9"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
