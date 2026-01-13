@@ -24,8 +24,12 @@ module.exports = async (req, res) => {
   }
 
   try {
-    const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY || 'fbe3a9cfa7msh52125e1ddc815d8p1c9075jsn5a5afb01aefe';
+    const RAPIDAPI_KEY = process.env.RAPIDAPI_KEY;
     const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+
+    if (!RAPIDAPI_KEY || !ANTHROPIC_KEY) {
+      return res.status(500).json({ error: 'API keys not configured' });
+    }
 
     // Fetch profile data
     const profileResponse = await axios.post(

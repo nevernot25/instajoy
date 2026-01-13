@@ -3,94 +3,131 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Instagram Scraper with AI Analysis</title>
+    <title>instajoy</title>
     <script src="https://cdn.tailwindcss.com"></script>
-</head>
-<body class="bg-gray-100 min-h-screen py-8">
-    <div class="container mx-auto px-4 max-w-4xl">
-        <div class="bg-white rounded-lg shadow-lg p-8 mb-6">
-            <h1 class="text-3xl font-bold text-gray-800 mb-2">Instagram Scraper</h1>
-            <p class="text-gray-600 mb-6">Get profile info, location data, and AI-powered analysis</p>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
 
-            <div class="flex gap-4 mb-4">
+        * { font-family: 'Inter', sans-serif; }
+
+        body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+
+        .glass {
+            background: rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .hidden { display: none; }
+
+        /* Easter egg */
+        .easter-egg {
+            position: fixed;
+            bottom: 4px;
+            right: 8px;
+            opacity: 0.02;
+            font-size: 10px;
+            color: white;
+            pointer-events: none;
+            letter-spacing: 2px;
+        }
+    </style>
+</head>
+<body class="min-h-screen py-12 px-4">
+    <div class="max-w-2xl mx-auto">
+        <!-- Header -->
+        <div class="text-center mb-8">
+            <h1 class="text-5xl font-bold text-white mb-2 tracking-tight">instajoy</h1>
+            <p class="text-white/80 text-sm">AI-powered Instagram insights</p>
+        </div>
+
+        <!-- Search -->
+        <div class="glass rounded-2xl p-6 mb-6 shadow-2xl">
+            <div class="flex gap-3">
                 <input
                     type="text"
                     id="username"
-                    placeholder="Enter Instagram username"
-                    class="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    placeholder="username"
+                    class="flex-1 px-4 py-3 bg-white/20 border border-white/30 rounded-xl text-white placeholder-white/60 focus:outline-none focus:ring-2 focus:ring-white/50 backdrop-blur"
                 />
                 <button
                     onclick="scrapeInstagram()"
                     id="scrapeBtn"
-                    class="bg-blue-500 hover:bg-blue-600 text-white px-6 py-2 rounded-lg font-semibold transition duration-200"
+                    class="bg-white/90 hover:bg-white text-purple-600 px-8 py-3 rounded-xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
                 >
-                    Scrape
+                    analyze
                 </button>
             </div>
         </div>
 
-        <div id="loading" class="hidden bg-white rounded-lg shadow-lg p-8 text-center">
-            <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
-            <p class="text-gray-600">Analyzing account...</p>
+        <!-- Loading -->
+        <div id="loading" class="hidden glass rounded-2xl p-12 text-center shadow-2xl">
+            <div class="animate-spin rounded-full h-12 w-12 border-2 border-white/30 border-t-white mx-auto mb-4"></div>
+            <p class="text-white/90 font-medium">analyzing...</p>
         </div>
 
-        <div id="error" class="hidden bg-red-50 border border-red-200 rounded-lg p-4 mb-6">
-            <p class="text-red-800" id="errorMessage"></p>
+        <!-- Error -->
+        <div id="error" class="hidden bg-red-500/20 backdrop-blur border border-red-300/30 rounded-2xl p-4 mb-6">
+            <p class="text-white font-medium" id="errorMessage"></p>
         </div>
 
-        <div id="results" class="hidden bg-white rounded-lg shadow-lg p-8">
-            <h2 class="text-2xl font-bold text-gray-800 mb-6">Results</h2>
+        <!-- Results -->
+        <div id="results" class="hidden space-y-6">
+            <!-- Profile Card -->
+            <div class="glass rounded-2xl p-8 shadow-2xl">
+                <div class="flex justify-between items-start mb-6">
+                    <div>
+                        <h2 class="text-2xl font-bold text-white" id="result-fullname"></h2>
+                        <p class="text-white/70" id="result-username"></p>
+                    </div>
+                    <div class="text-right">
+                        <p class="text-white/70 text-sm" id="result-country"></p>
+                        <p class="text-white/60 text-xs" id="result-joined"></p>
+                    </div>
+                </div>
 
-            <div class="grid grid-cols-2 gap-4 mb-6">
-                <div>
-                    <p class="text-sm text-gray-600">Username</p>
-                    <p class="font-semibold" id="result-username"></p>
+                <div class="grid grid-cols-2 gap-4 mb-6">
+                    <div class="bg-white/10 rounded-xl p-4 text-center">
+                        <p class="text-3xl font-bold text-white" id="result-followers"></p>
+                        <p class="text-white/60 text-sm">followers</p>
+                    </div>
+                    <div class="bg-white/10 rounded-xl p-4 text-center">
+                        <p class="text-3xl font-bold text-white" id="result-following"></p>
+                        <p class="text-white/60 text-sm">following</p>
+                    </div>
                 </div>
-                <div>
-                    <p class="text-sm text-gray-600">Full Name</p>
-                    <p class="font-semibold" id="result-fullname"></p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Country</p>
-                    <p class="font-semibold" id="result-country"></p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Date Joined</p>
-                    <p class="font-semibold" id="result-joined"></p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Followers</p>
-                    <p class="font-semibold" id="result-followers"></p>
-                </div>
-                <div>
-                    <p class="text-sm text-gray-600">Following</p>
-                    <p class="font-semibold" id="result-following"></p>
+
+                <div class="bg-white/10 rounded-xl p-4">
+                    <p class="text-white/90 text-sm leading-relaxed" id="result-bio"></p>
                 </div>
             </div>
 
-            <div class="mb-6">
-                <p class="text-sm text-gray-600 mb-2">Biography</p>
-                <p class="text-gray-800" id="result-bio"></p>
+            <!-- AI Analysis -->
+            <div class="glass rounded-2xl p-8 shadow-2xl">
+                <h3 class="text-xl font-semibold text-white mb-4 flex items-center gap-2">
+                    <span>✨</span> AI insights
+                </h3>
+                <pre class="whitespace-pre-wrap text-white/90 text-sm leading-relaxed" id="result-ai"></pre>
             </div>
 
-            <div class="bg-blue-50 rounded-lg p-6 mb-6">
-                <h3 class="text-xl font-bold text-gray-800 mb-4">🤖 AI Analysis</h3>
-                <pre class="whitespace-pre-wrap text-gray-700" id="result-ai"></pre>
-            </div>
-
-            <div>
-                <h3 class="text-xl font-bold text-gray-800 mb-4">Recent Posts</h3>
+            <!-- Posts -->
+            <div class="glass rounded-2xl p-8 shadow-2xl">
+                <h3 class="text-xl font-semibold text-white mb-6">recent posts</h3>
                 <div id="result-posts" class="space-y-4"></div>
             </div>
 
+            <!-- Download -->
             <button
                 onclick="downloadTxt()"
-                class="mt-6 bg-green-500 hover:bg-green-600 text-white px-6 py-2 rounded-lg font-semibold transition duration-200 w-full"
+                class="w-full bg-white/90 hover:bg-white text-purple-600 px-6 py-4 rounded-2xl font-semibold transition-all duration-200 shadow-lg hover:shadow-xl"
             >
-                Download as TXT
+                download report
             </button>
         </div>
     </div>
+
+    <!-- Easter egg -->
+    <div class="easter-egg">I LOVE JOY</div>
 
     <script>
         let currentData = null;
@@ -98,7 +135,7 @@
         async function scrapeInstagram() {
             const username = document.getElementById('username').value.trim();
             if (!username) {
-                alert('Please enter a username');
+                alert('enter a username');
                 return;
             }
 
@@ -119,7 +156,7 @@
                 const data = await response.json();
 
                 if (!response.ok) {
-                    throw new Error(data.error || 'Failed to scrape');
+                    throw new Error(data.error || 'failed to analyze');
                 }
 
                 currentData = data;
@@ -135,20 +172,20 @@
         }
 
         function displayResults(data) {
-            document.getElementById('result-username').textContent = data.username;
+            document.getElementById('result-username').textContent = '@' + data.username;
             document.getElementById('result-fullname').textContent = data.fullName;
             document.getElementById('result-country').textContent = data.country;
-            document.getElementById('result-joined').textContent = data.dateJoined;
+            document.getElementById('result-joined').textContent = 'joined ' + data.dateJoined;
             document.getElementById('result-followers').textContent = data.followers.toLocaleString();
             document.getElementById('result-following').textContent = data.following.toLocaleString();
             document.getElementById('result-bio').textContent = data.biography;
-            document.getElementById('result-ai').textContent = data.aiAnalysis || 'AI analysis not available';
+            document.getElementById('result-ai').textContent = data.aiAnalysis || 'AI analysis unavailable';
 
             const postsDiv = document.getElementById('result-posts');
             postsDiv.innerHTML = data.posts.map(post => `
-                <div class="border-l-4 border-blue-500 pl-4 py-2">
-                    <p class="text-sm text-gray-600 mb-1">Date: ${post.date}</p>
-                    <p class="text-gray-800">${post.caption}</p>
+                <div class="bg-white/10 rounded-xl p-4">
+                    <p class="text-white/60 text-xs mb-2">${post.date}</p>
+                    <p class="text-white/90 text-sm leading-relaxed">${post.caption}</p>
                 </div>
             `).join('');
 
@@ -160,7 +197,7 @@
 
             const content = `
 ==========================================
-INSTAGRAM DATA FOR @${currentData.username}
+INSTAJOY REPORT - @${currentData.username}
 ==========================================
 
 Username: ${currentData.username}
@@ -177,23 +214,25 @@ Biography:
 ${currentData.biography}
 
 ==========================================
-AI ANALYSIS
+AI INSIGHTS
 ==========================================
 
 ${currentData.aiAnalysis || 'Not available'}
 
 ==========================================
-POST CAPTIONS
+RECENT POST CAPTIONS
 ==========================================
 
 ${currentData.posts.map(post => `Date: ${post.date}\n${post.caption}\n\n---\n`).join('\n')}
+
+Generated with instajoy
 `;
 
             const blob = new Blob([content], { type: 'text/plain' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a');
             a.href = url;
-            a.download = `${currentData.username}_instagram_data.txt`;
+            a.download = `${currentData.username}_instajoy_report.txt`;
             a.click();
             URL.revokeObjectURL(url);
         }
